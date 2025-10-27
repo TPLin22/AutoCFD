@@ -22,19 +22,27 @@ log_with_time(f"config_file_path: {config_file_path}")
 
 config = load_config(config_file_path)
 
+
+def get_config_value(*keys, default=""):
+    for key in keys:
+        if key in config and config[key] not in (None, ""):
+            return config[key]
+    return default
+
+
 # Set variables from config
 case_name = config_file_path.split('/')[-1].split('.')[0]
-description = config.get('description', '')
-mesh_path = config.get('mesh_path', '')
-runfile_path = config.get('runfile_path', '')
-input_file_list = config.get('input_file_list', '')
+description = get_config_value('description')
+mesh_path = get_config_value('mesh_path')
+runfile_path = get_config_value('runfile_path')
+input_file_list = get_config_value('input_file_list')
 usr_requirment = description + "<mesh_path>" + mesh_path
-max_loop = config.get('max_loop', 10)
-temperature = config.get('temperature', 0.7)
-run_times = config.get('run_times', 1)
-MetaGPT_PATH = config.get('MetaGPT_PATH', '')
-model = config.get('model', '')
-openfoam_llm_base_url = config.get('openfoam_llm_base_url', '')
+max_loop = get_config_value('max_loop', default=10)
+temperature = get_config_value('temperature', default=0.7)
+run_times = get_config_value('run_times', default=1)
+MetaGPT_PATH = get_config_value('MetaGPT_PATH')
+model = get_config_value('model')
+openfoam_llm_base_url = get_config_value('openfoam_llm_base_url')
 Run_PATH = f'{Base_PATH}/run'  # Modify to the actual path
 should_stop = False
 status = ''
@@ -42,12 +50,24 @@ status = ''
 writter_prompt = ''
 writter_system = ''
 
-# Set environment variables from config
-os.environ["API_KEY"] = config.get("API_KEY", "")
-os.environ["PROXY"] = config.get("PROXY", "")
-os.environ["BASE_URL"] = config.get("BASE_URL", "")
-os.environ["http_proxy"] = "http://localhost:7890"
-os.environ["https_proxy"] = "http://localhost:7890"
+# Set environment variables from config (support lowercase/alternate keys)
+api_key = get_config_value("API_KEY", "api_key", "METAGPT_API_KEY")
+proxy = get_config_value("PROXY", "proxy")
+base_url = get_config_value("BASE_URL", "base_url")
+api_type = get_config_value("API_TYPE", "api_type", default="openai")
+
+os.environ["API_KEY"] = api_key
+os.environ["PROXY"] = proxy
+os.environ["BASE_URL"] = base_url
+os.environ["METAGPT_API_KEY"] = api_key
+os.environ["OPENAI_API_KEY"] = api_key
+
+if proxy:
+    os.environ["http_proxy"] = proxy
+    os.environ["https_proxy"] = proxy
+else:
+    os.environ.pop("http_proxy", None)
+    os.environ.pop("https_proxy", None)
 
 # Add MetaGPT_PATH to sys.path
 sys.path.append(MetaGPT_PATH)
@@ -68,11 +88,11 @@ with open(config2_yaml_path, 'r') as file:
 
 new_config2_data = {
     "llm": {
-        "api_type": "openai",
+        "api_type": api_type or "openai",
         "model": model,
-        "proxy": os.environ.get('PROXY'),
-        "base_url": os.environ.get('BASE_URL'),
-        "api_key": os.environ.get('API_KEY')
+        "proxy": proxy,
+        "base_url": base_url,
+        "api_key": api_key,
     }
 }
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source activate metagpt
+source activate autocfd
 
-case_name=vortex_shedding_c7_woT
+case_name=Couette_flow-laminar
 export CONFIG_FILE_PATH=Benchmark/${case_name}.yaml
 python src/main.py

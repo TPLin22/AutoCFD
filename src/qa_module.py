@@ -108,13 +108,14 @@ def setup_qa_ori():
 def setup_qa_openfoam_llm():
     def get_openfoam_llm_response(user_msg, system_msg=""):
         base_url = config_path.openfoam_llm_base_url
-        
+        api_key =  os.getenv("API_KEY")
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
         }
 
         data = {
-            'model': "openfoam_llm", 
+            'model': "deepseek-chat", 
             'messages': [],
             "max_tokens": 4000,
         }

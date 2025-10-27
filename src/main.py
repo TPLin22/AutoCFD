@@ -1,6 +1,7 @@
 
 import asyncio
 
+import config_path
 from metagpt.config2 import Config
 from metagpt.context import Context
 from metagpt.schema import Message
@@ -11,7 +12,6 @@ from roles.Prechecker import Prechecker
 from roles.InputWriter import InputWriter
 from roles.Corrector import Corrector
 from roles.Runner import Runner
-import config_path
 from Statistics import Statistics, global_statistics
 import time
 from utils.util import log_with_time
