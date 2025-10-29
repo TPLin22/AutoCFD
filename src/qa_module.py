@@ -115,7 +115,7 @@ def setup_qa_openfoam_llm():
         }
 
         data = {
-            'model': "deepseek-chat", 
+            'model': "qwen2.5-72b-instruct", 
             'messages': [],
             "max_tokens": 4000,
         }

@@ -106,12 +106,23 @@ Use the following structure for the output:
         # 在 with_messages 中找到最后一个 Corrector 消息
         last_corrector_msg = None
         for msg in with_messages:
-            if 'Corrector' == msg.role:
+            if getattr(msg, "role", "") == 'Corrector':
                 last_corrector_msg = msg
-        if last_corrector_msg != None:
+        if last_corrector_msg is not None:
             last_foamfiles = last_corrector_msg.content
         else:
-            last_foamfiles = parser_inputfiles(with_messages[1].content)
+            input_writer_msg = None
+            for msg in with_messages:
+                sender = getattr(msg, "role", "") or getattr(msg, "sender", "")
+                if sender and 'InputWriter' in sender:
+                    input_writer_msg = msg
+                    break
+            if input_writer_msg is not None:
+                last_foamfiles = parser_inputfiles(input_writer_msg.content)
+            elif getattr(config_path, 'latest_inputfiles_rsp', ''):
+                last_foamfiles = parser_inputfiles(config_path.latest_inputfiles_rsp)
+            else:
+                raise RuntimeError("CorrectorAction 未找到 InputWriter 的输出消息，且没有缓存内容，无法解析初始 Foam files。")
 
         requirement = config_path.description
         command = command.strip()
@@ -206,10 +217,19 @@ Use the following structure for the output:
                 for mesh_path in mesh_path_list:
                     system_index = mesh_path.rfind('system/')
                     constant_index = mesh_path.rfind('constant/')
-                    if system_index > 0:
+                    rel_mesh_path = None
+                    if system_index > -1:
                         rel_mesh_path = mesh_path[system_index:]
-                    elif constant_index > 0:
+                    elif constant_index > -1:
                         rel_mesh_path = mesh_path[constant_index:]
+                    else:
+                        file_name = os.path.basename(mesh_path)
+                        if file_name in {'blockMeshDict', 'blockMeshDict.m4'}:
+                            rel_mesh_path = os.path.join('system', file_name)
+                        elif file_name == 'boundary':
+                            rel_mesh_path = os.path.join('constant', 'polyMesh', file_name)
+                        else:
+                            rel_mesh_path = file_name
 
                     source_mesh_path = mesh_path
                     destination_mesh_path = os.path.join(config_path.Case_PATH, rel_mesh_path)
@@ -258,10 +278,19 @@ Use the following structure for the output:
                 for mesh_path in mesh_path_list:
                     system_index = mesh_path.rfind('system/')
                     constant_index = mesh_path.rfind('constant/')
-                    if system_index > 0:
+                    rel_mesh_path = None
+                    if system_index > -1:
                         rel_mesh_path = mesh_path[system_index:]
-                    elif constant_index > 0:
+                    elif constant_index > -1:
                         rel_mesh_path = mesh_path[constant_index:]
+                    else:
+                        file_name = os.path.basename(mesh_path)
+                        if file_name in {'blockMeshDict', 'blockMeshDict.m4'}:
+                            rel_mesh_path = os.path.join('system', file_name)
+                        elif file_name == 'boundary':
+                            rel_mesh_path = os.path.join('constant', 'polyMesh', file_name)
+                        else:
+                            rel_mesh_path = file_name
 
                     source_mesh_path = mesh_path
                     destination_mesh_path = os.path.join(config_path.Case_PATH, rel_mesh_path)

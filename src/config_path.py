@@ -49,6 +49,7 @@ status = ''
 
 writter_prompt = ''
 writter_system = ''
+latest_inputfiles_rsp = ''
 
 # Set environment variables from config (support lowercase/alternate keys)
 api_key = get_config_value("API_KEY", "api_key", "METAGPT_API_KEY")

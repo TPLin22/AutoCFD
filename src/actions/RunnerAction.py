@@ -49,7 +49,15 @@ class RunnerAction(Action):
         if allrun_write == "None":
             async_qa_allrun = AsyncQA_Ori()
 
-            InputWritter_output = with_messages[1].content
+            input_message = None
+            for message in with_messages:
+                sender = getattr(message, "role", "") or getattr(message, "sender", "")
+                if sender and "InputWriter" in sender:
+                    input_message = message
+                    break
+            if input_message is None:
+                raise RuntimeError("RunnerAction 未找到 InputWriter 的输出消息，无法生成 Allrun 脚本。")
+            InputWritter_output = input_message.content
             allrun_write = parser_allrun_script(InputWritter_output)
             if "blockMesh" not in allrun_write:
                 prompt_review_blockMesh = self.CHECK_BLOCKMESH_PROMPT.format(allrun=allrun_write)
@@ -134,7 +142,15 @@ class RunnerAction(Action):
         error_info = ""
         timeout = 12 * 60 * 60 # 12 hours
         with open(out_file, 'w') as out, open(err_file, 'w') as err:
-            process = subprocess.Popen(f'bash {case_path}/Allrun', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
+            process = subprocess.Popen(
+                'bash Allrun',
+                shell=True,
+                cwd=case_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                preexec_fn=os.setsid
+            )
             try:
                 stdout, stderr = process.communicate(timeout=timeout)
                 out.write(stdout)

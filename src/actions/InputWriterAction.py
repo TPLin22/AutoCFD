@@ -17,7 +17,16 @@ from utils.util import log_with_time, read_dict_and_create_files, parser_inputfi
 
 class InputWriterAction(Action):
 
-    SYSTEM_PROMPT: str = "You are an OpenFOAM expert. Below is a CFD Question, Mesh File and Input File Template. Generate a completed OpenFOAM input file in json according to the Input File Template. Then, generate a Allrun script. Please pay attention to the initial boundary conditions in the question. Do not generate any additional text or explanations."
+    SYSTEM_PROMPT: str = (
+        "You are an OpenFOAM expert. Below is a CFD Question, Mesh File and Input File Template. "
+        "Generate a completed OpenFOAM input file in json according to the Input File Template. Then, generate an Allrun script. "
+        "Please pay attention to the initial boundary conditions in the question. In the Allrun script you must: "
+
+        "(1) source $WM_PROJECT_DIR/bin/tools/RunFunctions; "
+        "(2) invoke every OpenFOAM command via runApplication so that their logs go to log.<command>; "
+        "(3) only include commands that are needed for this simulation. "
+        "Do not generate any additional text or explanations. Begin inputfiles with '# Foam files:' and end with '# Allrun script:' before generating the Allrun script."
+    )
 
     name: str = "InputWriterAction"
 
@@ -88,15 +97,28 @@ class InputWriterAction(Action):
 
         read_dict_and_create_files(input_files_dict, config_path.Case_PATH)
 
+        # 缓存最新的 input files 响应，供后续角色复用
+        config_path.latest_inputfiles_rsp = inputfiles_rsp
+
         # 复制 mesh 文件
         mesh_path_list = mesh_path.split(';')
         for mesh_path in mesh_path_list:
             system_index = mesh_path.rfind('system/')
             constant_index = mesh_path.rfind('constant/')
-            if system_index > 0:
+            rel_mesh_path = None
+            if system_index > -1:
                 rel_mesh_path = mesh_path[system_index:]
-            elif constant_index > 0:
+            elif constant_index > -1:
                 rel_mesh_path = mesh_path[constant_index:]
+            else:
+                # fall back to common OpenFOAM locations based on file name
+                file_name = os.path.basename(mesh_path)
+                if file_name in {'blockMeshDict', 'blockMeshDict.m4'}:
+                    rel_mesh_path = os.path.join('system', file_name)
+                elif file_name == 'boundary':
+                    rel_mesh_path = os.path.join('constant', 'polyMesh', file_name)
+                else:
+                    rel_mesh_path = file_name
 
             source_mesh_path = mesh_path
             destination_mesh_path = os.path.join(config_path.Case_PATH, rel_mesh_path)

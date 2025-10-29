@@ -96,8 +96,18 @@ def body(single_file):
             return d
         return remove_none
 
+    def convert_bool(value):
+        if isinstance(value, bool):
+            return 'true' if value else 'false'
+        if isinstance(value, dict):
+            return {k: convert_bool(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [convert_bool(v) for v in value]
+        return value
+
     # make python dictionary look like c++ dictionary!!
-    of = json.dumps(single_file, indent=4, separators=(";", "\t\t")) \
+    clean_dict = convert_bool(single_file)
+    of = json.dumps(clean_dict, indent=4, separators=(";", "\t\t")) \
         .replace('\\"', '@').replace('"\n', ";\n").replace('"', '') \
         .replace('};', '}').replace('\t\t{', '{').replace('@', '"')
     
