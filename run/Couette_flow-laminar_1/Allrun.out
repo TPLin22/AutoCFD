@@ -1,0 +1,2 @@
+Running blockMesh on /home/tplin2/workspace/AutoCFD/run/Couette_flow-laminar_1
+Running pimpleFoam on /home/tplin2/workspace/AutoCFD/run/Couette_flow-laminar_1

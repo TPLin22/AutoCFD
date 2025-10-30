@@ -1,0 +1,36 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2406                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _9bfe8264-20241212 OPENFOAM=2406 patch=241212 version=2406
+Arch   : "LSB;label=32;scalar=64"
+Exec   : pimpleFoam
+Date   : Oct 30 2025
+Time   : 18:22:56
+Host   : pan3054
+PID    : 7487
+I/O    : uncollated
+Case   : /home/tplin2/workspace/AutoCFD/run/Couette_flow-laminar_1
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+--> FOAM FATAL IO ERROR: (openfoam-2406 patch=241212)
+writeInterval < 1 for writeControl timeStep
+
+file: system/controlDict at line 14 to 42.
+
+    From virtual void Foam::Time::readDict()
+    in file db/Time/TimeIO.C at line 290.
+
+FOAM exiting
+
