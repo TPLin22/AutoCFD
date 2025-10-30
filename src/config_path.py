@@ -43,6 +43,8 @@ run_times = get_config_value('run_times', default=1)
 MetaGPT_PATH = get_config_value('MetaGPT_PATH')
 model = get_config_value('model')
 openfoam_llm_base_url = get_config_value('openfoam_llm_base_url')
+local_model_path = get_config_value('local_model_path')
+max_new_tokens = get_config_value('max_new_tokens', default=1024)
 Run_PATH = f'{Base_PATH}/run'  # Modify to the actual path
 should_stop = False
 status = ''

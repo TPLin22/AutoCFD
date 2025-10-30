@@ -4,11 +4,23 @@ mesh_path: "Benchmark/mesh/Couette_flow-laminar/blockMeshDict"
 max_loop: 10
 temperature: 0.7
 run_times: 5
-MetaGPT_PATH: "xxx"
+MetaGPT_PATH: "/home/tplin2/workspace/AutoCFD/MetaOpenFOAM_path/MetaGPT"
 
 # Qwen2.5-72B-Instruct
-API_KEY: "xxx"
-PROXY: "xxx"
-BASE_URL: "xxx"
-model: "xxx"
-openfoam_llm_base_url: "xxx"
+API_KEY: "sk-1df570dfddea4973b20730c368df3677"
+# PROXY: "xxx"
+BASE_URL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+model: "qwen-plus"
+openfoam_llm_base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+
+local_model_path: /home/tplin2/models/AutoCFD-7B
+max_new_tokens: 1024        # 可按需调整
+
+
+# api_key: sk-f9346c4c56344c34bd6d1c63af99db7f
+# api_type: openai
+# base_url: https://api.deepseek.com/
+# model: deepseek-chat
+# openfoam_llm_base_url: https://api.deepseek.com/v1/chat/completions
+# METAGPT_API_KEY: sk-f9346c4c56344c34bd6d1c63af99db7f
+
